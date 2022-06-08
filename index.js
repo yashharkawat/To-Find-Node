@@ -1,3 +1,4 @@
+const mp=new Map();
 const dfs = (node,arrayOfNodes) => {
   if(node===null) return;
   arrayOfNodes.push(node);
@@ -6,30 +7,39 @@ const dfs = (node,arrayOfNodes) => {
   });
   return arrayOfNodes;
 };
-const findNode=(pattern)=>{
-  const array=[];
+const findNode=()=>{
   const arrayOfNodes=dfs(document.body,[]);
   arrayOfNodes.forEach((item)=>{
     if(item.nodeType===Node.TEXT_NODE)
     {
       const text=item.textContent;
-      if(text.indexOf(pattern)!=-1)
+      if(mp.has(text))
       {
-        array.push(item);
-        //console.log(item.innerHTML);
-        let newElement=document.createElement("span");
-        newElement.classList.add("highLight");
-        newElement.innerHTML=item.textContent;
-        const par=item.parentNode;
-        par.replaceChild(newElement,item);
-        
+        const arr=mp.get(text);
+        const brr=[...arr,item];
+        mp.set(text,brr);
+      }
+      else
+      {
+        mp.set(text,[item]);
       }
     }
   })
-  document.querySelectorAll(".highLight").forEach((item)=>{
+} 
+const search=(pattern)=>{
+  if(mp.size===0) findNode();
+  if(!mp.has(pattern)) return;
+  const array= mp.get(pattern);
+  array.forEach((item)=>{
+    let newElement=document.createElement("mark");
+    newElement.classList.add("highLight");
+    newElement.innerHTML=item.textContent;
+    const par=item.parentNode;
+    par.replaceChild(newElement,item);
+  })
+  const arr=document.querySelectorAll(".highLight");
+  arr.forEach((item)=>{
     item.style.backgroundColor='Yellow';
   })
-  return array;
-} 
-
-//console.log(b);
+  //console.log(array);
+}
