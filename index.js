@@ -1,45 +1,59 @@
-const mp=new Map();
+const dict=new Map(); 
+
+//helper function to loop through all nodes.
 const dfs = (node,arrayOfNodes) => {
   if(node===null) return;
+  if(node.nodeName==='STYLE') return;
+
   arrayOfNodes.push(node);
   node.childNodes.forEach((item) => {
       dfs(item,arrayOfNodes);
   });
   return arrayOfNodes;
 };
-const findNode=()=>{
+/*
+this function sets the value to every text element 
+to the corresponding node where that text appears
+and it fills in the dict map.
+key-->text 
+value--> array of nodes containing that text
+*/
+const getDictionary=()=>{
   const arrayOfNodes=dfs(document.body,[]);
   arrayOfNodes.forEach((item)=>{
     if(item.nodeType===Node.TEXT_NODE)
     {
       const text=item.textContent;
-      if(mp.has(text))
+      if(dict.has(text))
       {
-        const arr=mp.get(text);
+        const arr=dict.get(text);
         const brr=[...arr,item];
-        mp.set(text,brr);
+        dict.set(text,brr);
       }
       else
       {
-        mp.set(text,[item]);
+        dict.set(text,[item]);
       }
     }
   })
 } 
-const search=(pattern)=>{
-  if(mp.size===0) findNode();
-  if(!mp.has(pattern)) return;
-  const array= mp.get(pattern);
+
+//search and highlight the text we wanna find
+
+const search=(text)=>{
+  if(!dict.has(text)) return;
+  const array= dict.get(text);
   array.forEach((item)=>{
-    let newElement=document.createElement("mark");
+    const newElement=document.createElement("mark");
     newElement.classList.add("highLight");
     newElement.innerHTML=item.textContent;
-    const par=item.parentNode;
-    par.replaceChild(newElement,item);
+    const parent=item.parentNode;
+    parent.replaceChild(newElement,item);
   })
   const arr=document.querySelectorAll(".highLight");
   arr.forEach((item)=>{
     item.style.backgroundColor='Yellow';
   })
-  //console.log(array);
 }
+
+window.onload=getDictionary();
